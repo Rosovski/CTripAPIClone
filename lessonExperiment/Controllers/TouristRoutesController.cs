@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using lessonExperiment.Dtos;
 using lessonExperiment.Services;
+using lessonExperiment.ResourceParameters;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 
 namespace lessonExperiment.Controllers
 {
@@ -26,9 +28,10 @@ namespace lessonExperiment.Controllers
 
         [HttpGet]
         [HttpHead]
-        public IActionResult GetTouristRoutes()
+        // add keyword search, and retrieve all matching routes
+        public IActionResult GetTouristRoutes([FromQuery] TouristRouteResourceParameters parameters)
         {
-            var touristRoutesFromRepo = _touristRouteRepository.GetTouristRoutes();
+            var touristRoutesFromRepo = _touristRouteRepository.GetTouristRoutes(parameters.Keyword, parameters.RatingOperator, parameters.RatingValue);
             if (touristRoutesFromRepo == null || touristRoutesFromRepo.Count() <= 0)
             {
                 return NotFound("没有旅游路线");
