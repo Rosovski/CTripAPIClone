@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 
 namespace lessonExperiment
 {
@@ -31,7 +32,27 @@ namespace lessonExperiment
             services.AddControllers(setupAction => {
                 // false --> return json regardless of content type in the http header -- from lecture 5.5
                 setupAction.ReturnHttpNotAcceptable = true;
-            }).AddXmlDataContractSerializerFormatters(); // add xml format support
+            }).AddXmlDataContractSerializerFormatters()
+            .ConfigureApiBehaviorOptions(setupAction =>
+            {
+                setupAction.InvalidModelStateResponseFactory = context =>
+                {
+                    var problemDetail = new ValidationProblemDetails(context.ModelState)
+                    {
+                        Type = "???",
+                        Title = "??????",
+                        Status = StatusCodes.Status422UnprocessableEntity,
+                        Detail = "??????",
+                        Instance = context.HttpContext.Request.Path
+                    };
+                    problemDetail.Extensions.Add("traceId", context.HttpContext.TraceIdentifier);
+                    return new UnprocessableEntityObjectResult(problemDetail)
+                    {
+                        ContentTypes = { "application/problem+json" }
+                    };
+                };
+            });
+
 
             services.AddTransient<ITouristRouteRepository, TouristRouteRepository>();
 

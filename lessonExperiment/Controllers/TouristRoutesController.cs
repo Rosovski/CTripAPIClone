@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata;
+using lessonExperiment.Models;
 
 namespace lessonExperiment.Controllers
 {
@@ -41,7 +42,7 @@ namespace lessonExperiment.Controllers
         }
 
         // api/touristroutes/{touristRouteId}
-        [HttpGet("{touristRouteId}")]
+        [HttpGet("{touristRouteId}", Name = "GetTouristRouteById")]
         public IActionResult GetTouristRouteById(Guid touristRouteId)
         {
             var touristRouteFromRepo = _touristRouteRepository.GetTouristRoute(touristRouteId);
@@ -53,5 +54,18 @@ namespace lessonExperiment.Controllers
             return Ok(touristRouteDto);
         }
 
+        [HttpPost]
+        public IActionResult CreateTouristRoute([FromBody] TouristRouteForCreationDto touristRouteForCreationDto)
+        {
+            var touristRouteModel = _mapper.Map<TouristRoute>(touristRouteForCreationDto);
+            _touristRouteRepository.AddTouristRoute(touristRouteModel);
+            _touristRouteRepository.Save();
+            var touristRouteToReturn = _mapper.Map<TouristRouteDto>(touristRouteModel);
+            return CreatedAtRoute(
+                "GetTouristRouteById",
+                new { touristRouteId = touristRouteToReturn.Id },
+                touristRouteToReturn
+            );
+        }
     }
 }

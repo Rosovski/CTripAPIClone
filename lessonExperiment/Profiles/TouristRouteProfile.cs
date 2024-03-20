@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using lessonExperiment.Dtos;
 using lessonExperiment.Models;
+using System;
 
 namespace lessonExperiment.Profiles
 {
@@ -24,6 +25,12 @@ namespace lessonExperiment.Profiles
                 .ForMember(
                     dest => dest.DepartureCity,
                     opt => opt.MapFrom(src => src.DepartureCity.ToString())
+                );
+
+            CreateMap<TouristRouteForCreationDto, TouristRoute>()
+                .ForMember(
+                    dest => dest.Id,
+                    opt => opt.MapFrom(src => Guid.NewGuid())
                 );
         }
     }
